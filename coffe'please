@@ -1,0 +1,63 @@
+from PIL import Image, ImageDraw
+
+def create_frames():
+    frames = []
+    width, height = 200, 200
+    for i in range(6):
+        img = Image.new('RGB', (width, height), color = 'white')
+        d = ImageDraw.Draw(img)
+        fill_level = (i % 3) * (height // 3)
+        d.rectangle([(50, height - fill_level), (150, height)], fill="brown")
+        frames.append(img)
+    return frames
+frames = create_frames()
+frames[0].save('coffee_bag.gif', save_all=True, append_images=frames[1:], optimize=False, duration=500, loop=0)
+import requests
+
+# Configuration de l'API OpenSea
+API_KEY = 'YOUR_OPENSEA_API_KEY'
+headers = {"Authorization": f"Bearer {API_KEY}"}
+
+# Charger le fichier de la vidéo
+files = {'file': open('coffee_bag.gif', 'rb')}
+response = requests.post("https://api.opensea.io/api/v1/assets", headers=headers, files=files)
+
+print(response.json())
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+
+contract CoffeeBagNFT is ERC721, Ownable {
+    uint256 public tokenCounter;
+
+    constructor() ERC721("CoffeeBagNFT", "CBN") {
+        tokenCounter = 0;
+    }
+
+    function createCoffeeBagNFT(string memory tokenURI) public onlyOwner returns (uint256) {
+        uint256 newItemId = tokenCounter;
+        _safeMint(msg.sender, newItemId);
+        _setTokenURI(newItemId, tokenURI);
+        tokenCounter = tokenCounter + 1;
+        return newItemId;
+    }
+}
+const hre = require("hardhat");
+
+async function main() {
+  const CoffeeBagNFT = await hre.ethers.getContractFactory("CoffeeBagNFT");
+  const coffeeBagNFT = await CoffeeBagNFT.deploy();
+
+  await coffeeBagNFT.deployed();
+
+  console.log("CoffeeBagNFT deployed to:", coffeeBagNFT.address);
+}
+
+main()
+  .then(() => process.exit(0))
+  .catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });
